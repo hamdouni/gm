@@ -115,7 +115,8 @@ func main() {
 			val = strings.TrimSpace(val)
 			switch val {
 			case "o": // open in browser
-				openbrowser("https://mail.google.com/mail/u/0/#all/" + m.gmailID)
+				log.Printf("Opening message id %v", m.gmailID)
+				openbrowser("https://mail.google.com/mail/u/0/h/?v=c&f=1&th=" + m.gmailID)
 			case "v": // view message body
 				fmt.Printf("\033c%s\n", m.body)
 			case "d": // delete message
