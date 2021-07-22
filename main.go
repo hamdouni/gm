@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	log.Println("Contacting Gmail...")
+	print("\033[2J\033[HContacting Gmail...\n")
 	ctx := context.Background()
 	srv, err := getService(ctx, "credentials.json")
 	if err != nil {
@@ -34,18 +34,17 @@ func main() {
 	msgs := []message{}
 	user := "me"
 
-	log.Println("Retreive threads...")
 	threads, err := srv.Users.Threads.List(user).Q("label:INBOX").Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve messages: %v", err)
 	}
 	if len(threads.Threads) == 0 {
-		fmt.Println("No messages found.")
+		println("No messages found.")
 		return
 	}
-	log.Printf("Found %v threads.\n", len(threads.Threads))
 	for idx, t := range threads.Threads {
-		log.Printf("Retreiving messages in thread %v on %v.\n", idx+1, len(threads.Threads))
+		s := fmt.Sprintf("Retreiving messages in thread %v on %v.\n", idx+1, len(threads.Threads))
+		print("\033[H" + s + "\n")
 		thread, err := srv.Users.Threads.Get(user, t.Id).Do()
 		if err != nil {
 			log.Printf("Unable to retrieve thread: %v", err)
@@ -98,13 +97,12 @@ func main() {
 			to:      to,
 		})
 	}
-	log.Println("Ready.")
 	reader := bufio.NewReader(os.Stdin)
 	count, deleted, archived := 0, 0, 0
+	cls()
 	for _, m := range msgs {
 		count++
 		for {
-			fmt.Println("\n--------------------------------------------------------------------------------")
 			fmt.Printf("Subject: %s\nFrom: %s\nTo: %s\nSize: %v\nDate: %v\n\n", m.subject, m.from, m.to, m.size, m.date)
 			fmt.Printf("Options: (v)iew, (a)rchive, (o)pen, (d)elete, (s)kip, (q)uit: [s] ")
 			skip := false
@@ -143,8 +141,12 @@ func main() {
 				skip = true
 			}
 			if skip {
+				cls()
 				break
 			}
 		}
 	}
+}
+func cls() {
+	print("\033[2J\033[H######################################################################################################\n")
 }
